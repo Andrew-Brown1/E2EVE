@@ -117,7 +117,7 @@
             "alpha_min":0.5,
             "alpha_max":0.7,
             "pos_augment":true,
-            "image_list":"../datasets/train.txt",
+            "image_list":"../E2EVE_meta/FFHQ_meta/FFHQ_train_image_list.txt",
             "path_to_images":"../datasets/FFHQ_128x128/",
             "mask_method":"random_mask"
           }
