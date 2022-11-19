@@ -50,16 +50,16 @@
       "train": {
         "target": "E2EVE.data.E2EVE_data.E2EVE_train_dataset",
         "params": {
-          "image_list":"../E2EVE_meta/LSUN_meta/LSUN_bed_train_image_list.txt",
-          "path_to_images":"../datasets/LSUN/",
+          "image_list":"../E2EVE_meta/FFHQ_meta/FFHQ_train_image_list.txt",
+          "path_to_images":"../datasets/FFHQ_128x128/",
           "VQGAN_driver":true
         }
       },
       "validation": {
         "target":  "E2EVE.data.E2EVE_data.E2EVE_train_dataset",
         "params": {
-          "image_list":"../E2EVE_meta/LSUN_meta/LSUN_bed_val_image_list.txt",
-          "path_to_images":"../datasets/LSUN/",
+          "image_list":"../E2EVE_meta/FFHQ_meta/FFHQ_val_image_list.txt",
+          "path_to_images":"../datasets/FFHQ_128x128/",
           "image_scale_transform": 1,
           "VQGAN_driver":true
         }

@@ -4,31 +4,30 @@
     "train": true,
     "seed": 23,
     "resume": null,
-    "log_dir":  "../E2EVE_output/logs",
+    "log_dir":"../E2EVE_output/logs",
     "dist_backend": "dp"
   },
-
     "model": {
+      "run_only_validation_epoch":false,
       "base_learning_rate": 1e-7,
       "target": "E2EVE.model.vqgan.VQModel",
-      "run_only_validation_epoch":false,
       "params": {
         "embed_dim": 256,
         "n_embed": 1024,
         "ddconfig": {
           "double_z": false,
           "z_channels": 256,
-          "resolution": 64,
+          "resolution": 256,
           "in_channels": 3,
           "out_ch": 3,
           "ch": 128,
           "ch_mult": [ 1,1,2,2,4],
           "num_res_blocks": 2,
-          "attn_resolutions": [4],
+          "attn_resolutions": [16],
           "dropout": 0.0
         },
         "lossconfig": {
-          "target":"E2EVE.modules.losses.vqperceptual.VQLPIPSWithDiscriminator",
+          "target": "E2EVE.modules.losses.vqperceptual.VQLPIPSWithDiscriminator",
           "params": {
             "disc_conditional": false,
             "disc_in_channels": 3,
@@ -51,8 +50,7 @@
         "target": "E2EVE.data.E2EVE_data.E2EVE_train_dataset",
         "params": {
           "image_list":"../E2EVE_meta/LSUN_meta/LSUN_bed_train_image_list.txt",
-          "path_to_images":"../datasets/LSUN/",
-          "VQGAN_driver":true
+          "path_to_images":"../datasets/LSUN/"
         }
       },
       "validation": {
@@ -60,8 +58,7 @@
         "params": {
           "image_list":"../E2EVE_meta/LSUN_meta/LSUN_bed_val_image_list.txt",
           "path_to_images":"../datasets/LSUN/",
-          "image_scale_transform": 1,
-          "VQGAN_driver":true
+          "image_scale_transform": 1
         }
       }
     }

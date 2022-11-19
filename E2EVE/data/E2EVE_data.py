@@ -10,7 +10,9 @@ from utils.utils import auto_init_args
 import torchvision.transforms as transforms
 import os 
 import random
+import torch
 import pickle
+import copy
 import PIL
 from PIL import Image
 from scipy.special import binom
@@ -182,7 +184,7 @@ class E2EVE_train_dataset(E2EVE_dataset_base):
         # read the image 
         with open(image_path, "rb") as fid:
             source_image = PIL.Image.open(fid)
-            if source_image.mode is not 'RGB':
+            if source_image.mode != 'RGB':
                 source_image = source_image.convert('RGB')
             source_image = self.source_transforms(source_image)
             
@@ -308,14 +310,14 @@ class E2EVE_val_dataset(E2EVE_dataset_base):
 
         with open(os.path.join(self.path_to_images,image_a_name), "rb") as fid:
             image_a = PIL.Image.open(fid)
-            if image_a.mode is not 'RGB':
+            if image_a.mode != 'RGB':
                 image_a = image_a.convert('RGB')
             # to solve a data loading bug
             image_a = self.source_transforms(image_a)
             
         with open(os.path.join(self.path_to_images,image_b_name), "rb") as fid:
             image_b = PIL.Image.open(fid)
-            if image_b.mode is not 'RGB':
+            if image_b.mode != 'RGB':
                 image_b = image_b.convert('RGB')
             # to solve a data loading bug
             image_b =self.source_transforms(image_b)
@@ -614,3 +616,107 @@ class Segment():
         self.p[2,:] = self.p2 + np.array([self.r*np.cos(self.angle2+np.pi),
                                     self.r*np.sin(self.angle2+np.pi)])
         self.curve = bezier(self.p,self.numpoints)
+
+
+
+
+
+# ----------------------------------------------------------------------------------------------------------------------------
+# code for loading individual image inputs for inference demo
+# -----------------------------------------------------------------------------------------------------------------------------
+
+class DemoData:
+    """contains functions required for processing the data in the inference demo"""
+    
+    def __init__(self):
+        None
+
+    def _source_image_padder_and_resize(self, source_image, pad=False):
+        """ this function will pad a non-square image with zeros to give a square source image and resize to 256"""
+
+        # pad the source image
+        
+        if pad:
+            image = copy.deepcopy(source_image)
+
+            if image.shape[0] > image.shape[1]:
+                side_pad = True
+            else:
+                side_pad = False
+
+            if side_pad:
+                left_side_pad = int((image.shape[0] - image.shape[1]) / 2)
+                right_side_pad = image.shape[0] - image.shape[1] - left_side_pad
+                first_pad = np.zeros(( image.shape[0], left_side_pad, 3)).astype('uint8')
+                second_pad = np.zeros(( image.shape[0], right_side_pad, 3)).astype('uint8')
+                image = np.concatenate([first_pad, image, second_pad],axis=1)
+                pad_coordinates = [0,image.shape[0], first_pad.shape[1], image.shape[0] - second_pad.shape[1]]
+            else:
+                top_side_pad = int((image.shape[1] - image.shape[0]) / 2)
+                bottom_side_pad = image.shape[1] - image.shape[0] - top_side_pad
+                first_pad = np.zeros((top_side_pad, image.shape[1], 3)).astype('uint8')
+                second_pad = np.zeros(( bottom_side_pad, image.shape[1], 3)).astype('uint8')
+                image = np.concatenate([first_pad, image, second_pad],axis=0)
+                pad_coordinates = [first_pad.shape[0], image.shape[1] - second_pad.shape[0], 0,image.shape[1] ]
+
+            assert(source_image.shape == image[pad_coordinates[0]:pad_coordinates[1],pad_coordinates[2]:pad_coordinates[3]].shape)
+            
+            
+            # resize the source image
+            
+            reshape_ratio = image.shape[0]/256.0
+
+            processor = transforms.Compose([
+                    transforms.Resize((int(image.shape[0]/reshape_ratio),int(image.shape[1]/reshape_ratio))),
+                ])
+        else:
+            image = source_image
+            processor = transforms.Compose([
+                transforms.RandomResizedCrop(256, (1,1),(1,1)),
+            ])
+            
+
+        reshaped_source_image = np.array(processor(Image.fromarray(image)))
+
+        return reshaped_source_image
+    
+    def _driver_resize(self, driver_image):
+        """this function will take a centre crop and resize the driver to 64"""
+        processor = transforms.Compose([
+                transforms.RandomResizedCrop(64, (1,1),(1,1)),
+            ])
+        
+        reshaped_driver_image = np.array(processor(Image.fromarray(driver_image)))
+
+        return reshaped_driver_image 
+         
+    def _process_image_array(self,image_array):
+        """ normalise and set to float"""
+        return (image_array/127.5 - 1.0).astype(np.float32)
+
+    def _load_fixed_data(self, source_image, driver_image, mask):
+        """
+        load  the data into the form reqiured by E2EVE model
+        """
+        batch = {}
+
+        # -- source --
+
+        source_image2 = self._process_image_array(source_image)
+
+        # -- masked source image --
+        
+        masked_source = ((mask==0)*source_image)
+        masked_source2 = self._process_image_array(masked_source)
+
+        # -- driver --
+        
+        driver_image2 = self._process_image_array(driver_image)
+
+        # -- assemble --
+
+        batch['source_image'] = torch.FloatTensor(np.expand_dims(source_image2,0)).repeat(1,1,1,1).cuda()
+        batch['masked_source'] = torch.FloatTensor(np.expand_dims(np.expand_dims(masked_source2,0),0)).repeat(1,1,1,1,1).cuda()
+        batch['driver_image'] = torch.FloatTensor(np.expand_dims(np.expand_dims(driver_image2,0),0)).repeat(1,1,1,1,1).cuda()
+
+        return batch, mask, source_image, masked_source, driver_image

@@ -506,7 +506,7 @@ class Cond_GPT(pl.LightningModule):
         N = 4
                 
         xx, cc, c2 = self.get_xc(batch, N)
-
+        
         xx = xx.to(device=self.device)
         cc = cc.to(device=self.device)
         if c2 is not None:
