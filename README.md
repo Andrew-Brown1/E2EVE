@@ -22,7 +22,9 @@ We pair this end-to-end approach with the adoption of state-of-the-art auto-regr
 ## Summary
 
 This repository contains the code for:
-- End-to-end training of the visual generator for targeted visual editing, using our self-supervised approach for simulating edits. Example training scripts are included for both:
+
+- A demo using a pre-trained E2EVE model trained on LSUN Bedroom
+- Example training scripts for training the E2EVE transformer are included for both:
   - <em>Block edits</em>, where the model learns to edit a square region in a source image (see paper for details)
   - <em>Random free form edits</em>, where the model learns to edit randomly drawn regions in a source image
 - Pre-training the visual tokenizers (<em>i.e.</em> E<sub>1</sub>,D<sub>1</sub> and E<sub>2</sub>,D<sub>2</sub> in the Figure above)
@@ -32,7 +34,13 @@ This repository contains the code for:
 
 1) Clone this repository
 2) ```pip install -r requirements.txt```
-3) Download required meta data for training with ```./utils/download_val_meta.sh```. This includes metadata for the E2EVE validation setup
+3) Download required meta data for the demo and training with ```./utils/download_val_meta.sh```. This includes metadata for the E2EVE validation setup
+
+## Demo
+We provide a demo for using the E2EVE model trained on LSUN Bedrooms in an IPython Notebook. To run the demo:
+1) download the (i) meta data (see above), and (ii) LSUN Bedroom weights using ```./utils/download_LSUN_weights.sh```
+2) follow the notebook ```demo.ipynb```. This will generate the examples shown below:
+
 
 ## Training the Visual Generator
 Example config files for training on FFHQ with <em>block edits</em> or <em>random free form edits</em> are found in ```configs/FFHQ/train_block_edit.json``` and ```configs/FFHQ/train_random_mask.json```, respectively. 
@@ -79,7 +87,7 @@ Example config files for training the source/masked-source image, or driver imag
 
 
 ## Paper
-If you find this repository useful, please consider citing:
+If you find this repository useful, please cite:
 ```
 @InProceedings{Brown22,
   author       = "Andrew Brown and Cheng-Yang Fu and Omkar Parkhi and Tamara L. Berg and Andrea Vedaldi",

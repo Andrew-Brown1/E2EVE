@@ -1,0 +1,143 @@
+
+{
+    "E2EVE_config": {
+      "train": true,
+      "seed": 23,
+      "resume": null,
+      "log_dir": "../E2EVE_output/logs",
+      "dist_backend": "dp"
+    },
+
+    "model": {
+      "run_only_validation_epoch":false,
+      "base_learning_rate": 4.5e-06,
+      "target": "E2EVE.model.E2EVE_model.Cond_GPT",
+      "params": {
+        
+        "log_validation_images":true,
+        "number_of_conditions": 1,
+        "ckpt_path": null,
+        "sample_top_k":null,
+        "sample_top_p":0.9,
+
+        "cond_stage_key": "driver_image",
+        "cond_stage2_key": "masked_source",
+        "transformer_config": {
+          "target": "E2EVE.modules.transformer.mingpt.GPT",
+          "params":{
+            "vocab_size": 1024,
+            "block_size": 530,
+            "n_layer": 24,
+            "n_head": 16,
+            "n_embd": 1024
+          }
+        },
+        "first_stage_config": {
+          "target": "E2EVE.model.vqgan.VQModel",
+          "params": {
+            "embed_dim": 256,
+            "n_embed": 1024,
+            "ckpt_path": "path_to_souce_image_tokenizer",
+            "ddconfig": {
+              "double_z": false,
+              "z_channels": 256,
+              "resolution": 256,
+              "in_channels": 3,
+              "out_ch": 3,
+              "ch": 128,
+              "ch_mult": [ 1,1,2,2,4],
+              "num_res_blocks": 2,
+              "attn_resolutions": [16],
+              "dropout": 0.0
+            },
+            "lossconfig": {
+              "target": "E2EVE.modules.losses.DummyLoss"
+            }
+          }
+        },
+        "cond_stage_config": {
+          "target": "E2EVE.model.vqgan.VQModel",
+          "params": {
+            "embed_dim": 256,
+            "n_embed": 1024,
+            "ckpt_path":  "path_to_driver_image_tokenizer",
+            "ddconfig": {
+              "double_z": false,
+              "z_channels": 256,
+              "resolution": 64,
+              "in_channels": 3,
+              "out_ch": 3,
+              "ch": 128,
+              "ch_mult": [ 1,1,2,2,4],
+              "num_res_blocks": 2,
+              "attn_resolutions": [4],
+              "dropout": 0.0
+            },
+            "lossconfig": {
+              "target": "E2EVE.modules.losses.DummyLoss"
+            }
+          }
+        },
+        "cond_stage2_config": {
+          "target": "E2EVE.model.vqgan.VQModel",
+          "params": {
+            "embed_dim": 256,
+            "n_embed": 1024,
+            "ckpt_path":  "path_to_souce_image_tokenizer",
+            "ddconfig": {
+              "double_z": false,
+              "z_channels": 256,
+              "resolution": 256,
+              "in_channels": 3,
+              "out_ch": 3,
+              "ch": 128,
+              "ch_mult": [ 1,1,2,2,4],
+              "num_res_blocks": 2,
+              "attn_resolutions": [16],
+              "dropout": 0.0
+            },
+            "lossconfig": {
+              "target": "E2EVE.modules.losses.DummyLoss"
+            }
+          }
+        }
+      }
+    },
+
+    "data": {
+      "target": "main.DataModuleFromConfig",
+      "params": {
+        "batch_size": 2,
+        "val_batch_size": 1,
+        "num_workers": 8,
+        "non_paired_validation":true,
+        "train": {
+          "target": "E2EVE.data.E2EVE_data.E2EVE_train_dataset",
+          "params": {
+            "alpha_min":0.5,
+            "alpha_max":0.7,
+            "pos_augment":true,
+            "image_list":"../E2EVE_meta/LSUN_meta/LSUN_bed_train_image_list.txt",
+            "path_to_images":"../datasets/LSUN/"
+          }
+        },
+      "validation": {
+        "target": "E2EVE.data.E2EVE_data.E2EVE_val_dataset",
+        "params": {
+          "path_to_images":"../datasets/LSUN/",
+          "validation_dataset_meta":"../E2EVE_meta/LSUN_meta/LSUN_bed_validation_dataset_construction.pk",
+          "non_paired_validation": true,
+          "non_paired_validate_every_n_epoch": 3,
+          "filter_by_visual_cue":true,
+          "num_val_samples_to_keep":2,
+          "num_validation_samples":2,
+          "non_paired_val_inception_features_path":"../E2EVE_meta/LSUN_meta/LSUN_bed_inception_feats.pk.pk",
+          "non_paired_val_patch_inception_features_path":"../E2EVE_meta/LSUN_meta/LSUN_bed_inception_feats_patches.pk.pk",
+          "non_paired_val_retrieval_dict_path": "../E2EVE_meta/LSUN_meta/LSUN_bed_retrieval_dict.pk.pk"
+
+        }
+      }
+    }
+    }
+    }
+    
