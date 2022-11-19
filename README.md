@@ -19,6 +19,7 @@ We pair this end-to-end approach with the adoption of state-of-the-art auto-regr
   
 </div>
 
+
 ## Summary
 
 This repository contains the code for:
@@ -34,13 +35,21 @@ This repository contains the code for:
 
 1) Clone this repository
 2) ```pip install -r requirements.txt```
-3) Download required meta data for the demo and training with ```./utils/download_val_meta.sh```. This includes metadata for the E2EVE validation setup
+3) Download required meta data for the demo and training with ```./utils/download_val_meta.sh```. This includes metadata for the E2EVE validation setup[demo_images.pdf](https://github.com/Andrew-Brown1/E2EVE/files/10047669/demo_images.pdf)
+
 
 ## Demo
 We provide a demo for using the E2EVE model trained on LSUN Bedrooms in an IPython Notebook. To run the demo:
 1) download the (i) meta data (see above), and (ii) LSUN Bedroom weights using ```./utils/download_LSUN_weights.sh```
 2) follow the notebook ```demo.ipynb```. This will generate the examples shown below:
 
+<div align="center">
+  
+| E2EVE generated images in demo | 
+| ------------------------- |
+| <img src="https://user-images.githubusercontent.com/44160842/202865026-6aeebe99-7c95-4f0a-a365-606fb13f10fb.jpg" width="800" /> |
+  
+</div>
 
 ## Training the Visual Generator
 Example config files for training on FFHQ with <em>block edits</em> or <em>random free form edits</em> are found in ```configs/FFHQ/train_block_edit.json``` and ```configs/FFHQ/train_random_mask.json```, respectively. 
