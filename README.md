@@ -35,7 +35,7 @@ This repository contains the code for:
 
 1) Clone this repository
 2) ```pip install -r requirements.txt```
-3) Download required meta data for the demo and training with ```./utils/download_val_meta.sh```. This includes metadata for the E2EVE validation setup[demo_images.pdf](https://github.com/Andrew-Brown1/E2EVE/files/10047669/demo_images.pdf)
+3) Download required meta data for the demo and training with ```./utils/download_val_meta.sh```. This includes metadata for the E2EVE validation setup
 
 
 ## Demo
